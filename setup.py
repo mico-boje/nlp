@@ -17,7 +17,12 @@ setup(
         'tokenizers',
         'sentencepiece',
         'protobuf==3.20.0',
-        
+        'evaluate',
+        'nltk',
+        'rouge-score',
+        'absl-py',
+        'accelerate',
+        'nvidia-ml-py3',
         # add additional libraries as needed
     ],
     dependency_links=[
