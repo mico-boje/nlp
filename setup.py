@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='summarisation',
+    name='nlp',
     version='0.1.0',
     description='',
     author='',
@@ -23,6 +23,8 @@ setup(
         'absl-py',
         'accelerate',
         'nvidia-ml-py3',
+        'seqeval',
+        'gensim',
         # add additional libraries as needed
     ],
     dependency_links=[

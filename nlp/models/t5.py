@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import evaluate
 import numpy as np
@@ -7,11 +8,15 @@ from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, Seq2SeqTrainer
 from transformers import DataCollatorForSeq2Seq
 
-from summarisation.utils.utility import get_root_path
+from nlp.utils.utility import get_root_path
 
-CHECKPOINT = "google/mt5-small"
+CHECKPOINT = "t5-small"
 PREFIX = "summarize: "
-TOKENIZER = AutoTokenizer.from_pretrained(CHECKPOINT, use_fast=False)
+TOKENIZER = AutoTokenizer.from_pretrained(CHECKPOINT, 
+                                          use_fast=False, 
+                                          model_max_length=1024, 
+                                          truncation_side="left",
+                                          )
 ROUGE = evaluate.load("rouge")
 
 def main():
@@ -25,14 +30,14 @@ def main():
     training_args = Seq2SeqTrainingArguments(
         output_dir=os.path.join(get_root_path(), 'data', 'models', 'checkpoint'),
         evaluation_strategy="epoch",
-        learning_rate=2e-5,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=2,
+        learning_rate=1e-5,
+        per_device_train_batch_size=4,
+        per_device_eval_batch_size=4,
         weight_decay=0.01,
         save_total_limit=3,
-        num_train_epochs=4,
+        num_train_epochs=24,
         predict_with_generate=True,
-        fp16=True,
+        fp16=False,
         push_to_hub=False,
     )
     # Train model
@@ -46,7 +51,7 @@ def main():
         compute_metrics=compute_metrics,
     )
     trainer.train()
-    trainer.save_model(output_dir=os.path.join(get_root_path(), 'data', 'models', 'mt5-small'))
+    trainer.save_model(output_dir=os.path.join(get_root_path(), 'data', 'models', CHECKPOINT))
     
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
@@ -59,7 +64,10 @@ def compute_metrics(eval_pred):
 
     return {k: round(v, 4) for k, v in result.items()}
 
-def create_train_test_split(train_size=0.7):
+def create_train_test_split(train_size=0.7, use_billsum=False):
+    if use_billsum:
+        dataset = Dataset.from_dict({"text": text, "summary": summary})
+        dataset.train_test_split(train_size=train_size)
     text = []
     summary = []
     data_path = os.path.join(get_root_path(), 'data', 'json')
@@ -67,8 +75,8 @@ def create_train_test_split(train_size=0.7):
     for pdf in os.listdir(data_path):
         with open(os.path.join(data_path, pdf), 'r') as f:
             data = json.load(f)
-            text.append(data['text'])
-            summary.append(data['summary'])
+            text.append(re.sub('[^a-zA-ZæøåÆØÅ.]+', ' ', data['text']))
+            summary.append(re.sub('[^a-zA-ZæøåÆØÅ.]+', ' ', data['summary']))
     dataset = Dataset.from_dict({"text": text, "summary": summary})
     return dataset.train_test_split(train_size=train_size)
 

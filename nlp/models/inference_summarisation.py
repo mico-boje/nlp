@@ -2,10 +2,10 @@ import os
 
 from transformers import pipeline
 
-from summarisation.utils.utility import get_root_path
+from nlp.utils.utility import get_root_path
 
 text = """
-summarize: Europa-Kommissionen skal fremlægge et forslag til
+Europa-Kommissionen skal fremlægge et forslag til
 revision a den nansielle lovgivning med okus på
 rammerne for at føre makroprudentiel politik. Som
 led heri skal Kommissionen fremlægge forslag, der
@@ -27,6 +27,6 @@ udlånskapacitet vil deror være kratigt reduceret.
 Det er vigtigt at løse denne problematik og sikre de
 makroprudentielle myndigheders handlerum.
 """
-path = os.path.join(get_root_path(), 'data', 'models', 'mt5-small')
-summarizer = pipeline("summarization", model=path, use_fast=False)
+path = os.path.join(get_root_path(), 'data', 'models', 'google', 'mt5-small')
+summarizer = pipeline("summarization", model=path, use_fast=False, max_length=100, min_length=30)
 print(summarizer(text))

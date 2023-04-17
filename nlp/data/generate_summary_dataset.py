@@ -2,9 +2,9 @@
 import os
 import json
 
-from summarisation.data.read_pdf import read_pdf
-from summarisation.data.get_summary_openai import get_summary
-from summarisation.utils.utility import get_root_path
+from nlp.data.read_pdf import read_pdf
+from nlp.data.get_summary_openai import get_summary
+from nlp.utils.utility import get_root_path
 
 
 def main():
