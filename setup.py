@@ -25,6 +25,7 @@ setup(
         'nvidia-ml-py3',
         'seqeval',
         'gensim',
+        'pyllamacpp'
         # add additional libraries as needed
     ],
     dependency_links=[
